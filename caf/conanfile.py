@@ -12,6 +12,7 @@ if not version_str:
 class CAFConan(ConanFile):
     name = "caf"
     url = "https://github.com/sourcedelica/conan-recipes/tree/master/caf"
+    license = "MIT"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
     source_dir = "actor-framework"
