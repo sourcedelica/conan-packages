@@ -1,5 +1,5 @@
 project(CAFReusePackage)
-cmake_minimum_required(VERSION 3.5.2)
+cmake_minimum_required(VERSION 3.5.1)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
 #set(CMAKE_BINARY_DIR /Users/eric/PycharmProjects/conan-recipes/caf/test_package/build/e2cfbe22535234e76cb415e6154e331c12e858d4)
