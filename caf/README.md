@@ -3,7 +3,7 @@ Conan recipe for [CAF](http://actor-framework.org)
 
 TODO
 ----
-- I copied the tests for 0.15.1 manually into `test_package/tests`.  This needs to be automated by `test_package/conanfile.py`.
+- I copied the tests for 0.15.1 manually into `test_package/tests`.  This needs to be automated by `test_package/conanfile.py`. 
 
 CAF build parameters
 --------------------
