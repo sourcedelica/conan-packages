@@ -20,7 +20,7 @@ class CAFConan(ConanFile):
 
     def source(self):
         self.run("git clone https://github.com/actor-framework/actor-framework.git")
-        self.run("cd %s && git checkout %s" % (self.source_dir, self.version))
+        self.run("cd %s && git checkout -b %s.x %s" % (self.source_dir, self.version, self.version))
 
     def build(self):
         static_suffix = "" if self.options.shared else "-only"
