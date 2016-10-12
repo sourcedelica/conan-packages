@@ -1,9 +1,11 @@
-import StringIO
-from conans import ConanFile, CMake
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+from conans import ConanFile
 from conans.errors import ConanException
 import os
 import sys
-import pdb
 
 version_env = "CONAN_PACKAGE_VERSION"
 version_str = os.getenv(version_env)
