@@ -20,18 +20,15 @@ class CAFConan(ConanFile):
     source_dir = "actor-framework"
     version = version_str
 
-    def config(self):
-        print("config")
+    def config_options(self):
         if self.settings.compiler == 'gcc' and float(self.settings.compiler.version.value) >= 5.1:
             self.check_abi()
 
     def source(self):
-        print("source")
         self.run("git clone https://github.com/actor-framework/actor-framework.git")
         self.run("cd %s && git checkout -b %s.x %s" % (self.source_dir, self.version, self.version))
 
     def build(self):
-        print("build")
         static_suffix = "" if self.options.shared else "-only"
         configure = \
             "./configure --no-python --no-examples --no-opencl --no-tools --no-unit-tests --build-static%s" % \
