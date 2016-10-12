@@ -22,7 +22,6 @@ class CAFConan(ConanFile):
 
     def config(self):
         print("config")
-        pdb.set_trace()
         if self.settings.compiler == 'gcc' and float(self.settings.compiler.version.value) >= 5.1:
             self.check_abi()
 
@@ -38,14 +37,12 @@ class CAFConan(ConanFile):
             tmp_file.write(abi_check_source)
 
         exe_filename = os.tmpnam()
-        pdb.set_trace()
         self.run("g++ %s -o %s" % (tmp_source_filename, exe_filename))
 
         output = StringIO.StringIO()
         self.run("%s" % exe_filename, output)
         contents = output.getvalue()
         output.close()
-        print("output=%s" % output)
 
         libcxx = self.settings.compiler.libcxx
         if contents == '1' and libcxx != 'libstdc++11':
