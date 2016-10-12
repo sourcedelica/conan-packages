@@ -1,5 +1,6 @@
 import StringIO
 from conans import ConanFile, CMake
+from conans.errors import ConanException
 import os
 import sys
 import pdb
@@ -21,14 +22,15 @@ class CAFConan(ConanFile):
     version = version_str
 
     def config_options(self):
-        if self.settings.compiler == 'gcc' and float(self.settings.compiler.version.value) >= 5.1:
-            self.check_abi()
+        pass
 
     def source(self):
         self.run("git clone https://github.com/actor-framework/actor-framework.git")
         self.run("cd %s && git checkout -b %s.x %s" % (self.source_dir, self.version, self.version))
 
     def build(self):
+        if self.settings.compiler == 'gcc' and float(self.settings.compiler.version.value) >= 5.1:
+            self.check_abi()
         static_suffix = "" if self.options.shared else "-only"
         configure = \
             "./configure --no-python --no-examples --no-opencl --no-tools --no-unit-tests --build-static%s" % \
@@ -69,6 +71,6 @@ class CAFConan(ConanFile):
 
         libcxx = self.settings.compiler.libcxx
         if contents == '1' and libcxx != 'libstdc++11':
-            raise Exception("You must use the option -s compiler.libcxx=libstdc++11")
+            raise ConanException("You must use the option -s compiler.libcxx=libstdc++11")
         if contents == '0' and libcxx != 'libstdc++':
             raise Exception("You must use the option -s compiler.libcxx=libstdc++")
