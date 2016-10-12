@@ -25,31 +25,6 @@ class CAFConan(ConanFile):
         if self.settings.compiler == 'gcc' and float(self.settings.compiler.version.value) >= 5.1:
             self.check_abi()
 
-    def check_abi(self):
-        abi_check_source = """
-            #include <iostream>
-            int main(int argc, char **argv) {
-                std::cout << _GLIBCXX_USE_CXX11_ABI;
-            }
-        """
-        tmp_source_filename = os.tmpnam() + ".cpp"
-        with open(tmp_source_filename, "w+") as tmp_file:
-            tmp_file.write(abi_check_source)
-
-        exe_filename = os.tmpnam()
-        self.run("g++ %s -o %s" % (tmp_source_filename, exe_filename))
-
-        output = StringIO.StringIO()
-        self.run("%s" % exe_filename, output)
-        contents = output.getvalue()
-        output.close()
-
-        libcxx = self.settings.compiler.libcxx
-        if contents == '1' and libcxx != 'libstdc++11':
-            raise Exception("You must use the option -s compiler.libcxx=libstdc++11")
-        if contents == '0' and libcxx != 'libstdc++':
-            raise Exception("You must use the option -s compiler.libcxx=libstdc++")
-
     def source(self):
         print("source")
         self.run("git clone https://github.com/actor-framework/actor-framework.git")
@@ -72,3 +47,31 @@ class CAFConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["caf_io_static", "caf_core_static"]
+
+    def check_abi(self):
+        abi_check_source = """
+            #include <iostream>
+            int main(int argc, char **argv) {
+                std::cout << _GLIBCXX_USE_CXX11_ABI;
+            }
+        """
+        source_filename = os.tmpnam() + ".cpp"
+        with open(source_filename, "w+") as tmp_file:
+            tmp_file.write(abi_check_source)
+
+        exe_filename = os.tmpnam()
+        self.run("g++ %s -o %s" % (source_filename, exe_filename))
+
+        output = StringIO.StringIO()
+        self.run("%s" % exe_filename, output)
+        contents = output.getvalue()
+        output.close()
+
+        os.remove(source_filename)
+        os.remove(exe_filename)
+
+        libcxx = self.settings.compiler.libcxx
+        if contents == '1' and libcxx != 'libstdc++11':
+            raise Exception("You must use the option -s compiler.libcxx=libstdc++11")
+        if contents == '0' and libcxx != 'libstdc++':
+            raise Exception("You must use the option -s compiler.libcxx=libstdc++")
