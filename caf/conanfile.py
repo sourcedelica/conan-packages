@@ -63,7 +63,7 @@ class CAFConan(ConanFile):
         exe_filename = os.tmpnam()
         self.run("g++ %s -o %s" % (source_filename, exe_filename))
 
-        output = StringIO.StringIO()
+        output = StringIO()
         self.run("%s" % exe_filename, output)
         contents = output.getvalue()
         output.close()
