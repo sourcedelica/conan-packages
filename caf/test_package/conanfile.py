@@ -35,7 +35,6 @@ class CAFReuseConan(ConanFile):
         self.run("cd %s && git config core.sparseCheckout true" % tests_dir)
         sparse_checkout = "%s/.git/info/sparse-checkout" % tests_dir
         save(sparse_checkout, "libcaf_test\n")
-        save(sparse_checkout, "libcaf_core/test\n", True)
         save(sparse_checkout, "libcaf_io/test\n", True)
         self.run("cd %s && git pull origin %s --depth 1" % (tests_dir, self.version))
 

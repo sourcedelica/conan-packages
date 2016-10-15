@@ -10,10 +10,8 @@ conan_basic_setup()
 
 set(CMAKE_CXX_FLAGS "-fPIC -std=c++11 ${EXTRA_FLAGS}")
 
-file(GLOB_RECURSE tests "tests/libcaf_*/test/*.cpp")
-
 add_executable(caf-test
-             ${tests}
+             tests/libcaf_io/test/basp.cpp
              tests/libcaf_test/src/caf-test.cpp)
 
 target_include_directories(caf-test PUBLIC tests/libcaf_test)

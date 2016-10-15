@@ -1,7 +1,4 @@
-# Conan recipe for [CAF](http://actor-framework.org)
-
-##  TODO
-- I copied the tests for 0.15.1 manually into `test_package/tests`.  This needs to be automated by `test_package/conanfile.py`. 
+# [Conan](http://conan.io) recipe for [CAF](http://actor-framework.org)
 
 ## CAF build parameters
 
