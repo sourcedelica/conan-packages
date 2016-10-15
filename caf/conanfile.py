@@ -20,6 +20,7 @@ class CAFConan(ConanFile):
     license = "MIT"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
+    default_options = "shared=False"
     source_dir = "actor-framework"
     version = version_str
 
@@ -50,31 +51,10 @@ class CAFConan(ConanFile):
 
     def set_abi(self):
         """CAF builds with the default GCC ABI.  """
-        abi_check_source = """
-            #include <iostream>
-            int main(int argc, char **argv) {
-                std::cout << _GLIBCXX_USE_CXX11_ABI;
-            }
-        """
-        source_filename = os.tmpnam() + ".cpp"
-        with open(source_filename, "w+") as tmp_file:
-            tmp_file.write(abi_check_source)
-
-        exe_filename = os.tmpnam()
-        self.run("g++ %s -o %s" % (source_filename, exe_filename))
-
         output = StringIO()
-        self.run("%s" % exe_filename, output)
-        use_libcxx11 = int(output.getvalue())
-        output.close()
-
-        os.remove(source_filename)
-        os.remove(exe_filename)
-
-        self.settings.compiler.libcxx = 'libstdc++11' if use_libcxx11 else 'libstdc++'
-
-        # libcxx = self.settings.compiler.libcxx
-        # if contents == '1' and libcxx != 'libstdc++11':
-        #     raise ConanException("You must use the option -s compiler.libcxx=libstdc++11")
-        # if contents == '0' and libcxx != 'libstdc++':
-        #     raise ConanException("You must use the option -s compiler.libcxx=libstdc++")
+        self.run("g++ --version -v", output)
+        contents = output.getvalue()
+        use_libcxx11 = '--with-default-libstdcxx-abi=new' in contents
+        libcxx = 'libstdc++11' if use_libcxx11 else 'libstdc++'
+        self.settings.compiler.libcxx = libcxx
+	self.output.info("Setting compiler.libcxx=%s" % libcxx)
