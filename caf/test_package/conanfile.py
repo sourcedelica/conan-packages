@@ -3,23 +3,18 @@ try:
 except ImportError:
     from io import StringIO
 from conans import ConanFile, CMake
+from conans.errors import ConanException
 from conans.util.files import save
 import os
 import sys
 import pdb
 
-channel = os.getenv("CONAN_CHANNEL", "testing")
-username = os.getenv("CONAN_USERNAME", "sourcedelica")
-version_env = "CONAN_PACKAGE_VERSION"
-version_str = os.getenv(version_env)
-if not version_str:
-    sys.stderr.write("%s not set\n" % version_env)
-    sys.exit(1)
-
 
 class CAFReuseConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    version = version_str
+    version = '0.15.1'
+    username = 'sourcedelica'  # FIXME
+    channel = 'testing'        # FIXME
     requires = "caf/%s@%s/%s" % (version, username, channel)
     default_options = "caf:shared=False"
     generators = "cmake"
@@ -28,8 +23,9 @@ class CAFReuseConan(ConanFile):
         self.has_libcxx = "libcxx" in self.settings.compiler.fields
         print("has_libcxx=" , self.has_libcxx)
 
+    # TODO: remove this when https://github.com/conan-io/conan/issues/564 is fixed
     def set_abi(self):
-        """CAF builds with the default GCC ABI.  """
+        """CAF builds with the default GCC ABI - use it for the package"""
         output = StringIO()
         self.run("g++ --version -v", output)
         contents = output.getvalue()
@@ -40,7 +36,8 @@ class CAFReuseConan(ConanFile):
 
     def build(self):
         self.copy_tests()
-        self.set_abi()
+        if self.settings.compiler == 'gcc' and float(self.settings.compiler.version.value) >= 5.1:
+            self.set_abi()
 
         cmake = CMake(self.settings)
         self.run('cmake "%s" %s' % (self.conanfile_directory, cmake.command_line))
