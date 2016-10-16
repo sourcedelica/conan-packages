@@ -5,39 +5,35 @@ except ImportError:
 from conans import ConanFile, CMake
 from conans.errors import ConanException
 from conans.util.files import save
+from conans.client.output import ConanOutput
 import os
 import sys
-import pdb
+
+
+def env(name, default=None):
+    value = os.environ.get(name, default)
+    if not value:
+        out = ConanOutput(sys.stdout, True)
+        out.error("You must set the %s environment variable" % name)
+        sys.exit(1)
+    return value
 
 
 class CAFReuseConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
-    version = '0.15.1'
-    username = 'sourcedelica'  # FIXME
-    channel = 'testing'        # FIXME
+    version  = env('CAF_CONAN_VERSION')
+    username = env('CAF_CONAN_USERNAME', 'sourcedelica')  # FIXME
+    channel  = env('CAF_CONAN_CHANNEL', 'testing')        # FIXME
+
     requires = "caf/%s@%s/%s" % (version, username, channel)
+    settings = "os", "compiler", "build_type", "arch"
     default_options = "caf:shared=False"
     generators = "cmake"
 
-    def config_options(self):
-        self.has_libcxx = "libcxx" in self.settings.compiler.fields
-        print("has_libcxx=" , self.has_libcxx)
-
-    # TODO: remove this when https://github.com/conan-io/conan/issues/564 is fixed
-    def set_abi(self):
-        """CAF builds with the default GCC ABI - use it for the package"""
-        output = StringIO()
-        self.run("g++ --version -v", output)
-        contents = output.getvalue()
-        use_libcxx11 = '--with-default-libstdcxx-abi=new' in contents
-        libcxx = 'libstdc++11' if use_libcxx11 else 'libstdc++'
-        self.settings.compiler.libcxx = libcxx
-        self.output.info("test_package setting compiler.libcxx=%s" % libcxx)
-
     def build(self):
-        self.copy_tests()
         if self.settings.compiler == 'gcc' and float(self.settings.compiler.version.value) >= 5.1:
-            self.set_abi()
+            if self.settings.compiler.libcxx != 'libstdc++11':
+                raise ConanException("You must use the setting compiler.libcxx=libstdc++11")
+        self.copy_tests()
 
         cmake = CMake(self.settings)
         self.run('cmake "%s" %s' % (self.conanfile_directory, cmake.command_line))

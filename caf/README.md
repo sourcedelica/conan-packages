@@ -40,4 +40,4 @@ that your packages live under, and _channel_ is one of `testing`, `beta`,
 `development`, `stable`, etc.
 
 After the package is uploaded successfully you should commit and push 
-the changes to the two `conanfile.py` files to Github.
+the updated `conanfile`s to Github.
