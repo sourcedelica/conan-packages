@@ -1,63 +1,43 @@
 # [Conan](http://conan.io) recipe for [CAF](http://actor-framework.org)
 
-## CAF build parameters
+## Setup
 
-### GCC
-Test Package
+### GCC 5.1+
+
+CAF compiles with the default C++ ABI.
+
+Verify which version of the C++ ABI your compiler is using by default:
+
 ```
-conan test_package -s compiler=gcc -s compiler.libcxx=libstdc++11
-```
-CAF build output
-```
-Libcaf version:    0.15.1
-
-Build type:        RelWithDebInfo
-Build static:      no
-Build static only: yes
-Runtime checks:    no
-Log level:         none
-With mem. mgmt.:   yes
-With exceptions:   yes
-
-Build I/O module:  yes
-Build tools:       no
-Build examples:    no
-Build unit tests:  no
-Build benchmarks:  no
-Build opencl:      no
-Build Python:      no
-
-CXX:               /usr/bin/c++
-CXXFLAGS:          -std=c++11 -Wextra -Wall -pedantic -ftemplate-depth=512 -ftemplate-backtrace-limit=0 -pthread -fPIC -O2 -g -DNDEBUG
-LIBRARIES: 
+g++ --version -v 2>&1 | grep -- --with-default-libstdcxx-abi
 ```
 
-### Apple
-Test Package
-```
-conan test_package -s compiler=apple-clang -s compiler.version=8.0
-```
+Edit `~/.conan/conan.conf` and change `compiler.libcxx` depending on the
+value of `--with-default-libstdcxx-abi`:
 
-CAF build output
+| ABI value | Conan `libcxx` |
+|:----------|:---------------|
+| `new`     | `libstdc++11`  |
+| `old`     | `libstdc++`    |
+
+You may need to run the `conan` command once to generate it.
+
+## Building a new version of the package
+
+1. Edit `conanfile.py` and `test_package/conanfile.py` and change the
+   version attribute
+2. Run `conan test_package`
+
+The last step will build CAF and install the package in your local Conan
+repository under `~/.conan/data`.
+
+## Uploading the package to `conan.io`
 ```
-Libcaf version:    0.15.1
-
-Build type:        Release
-Build static:      no
-Build static only: yes
-Runtime checks:    no
-Log level:         none
-With mem. mgmt.:   yes
-With exceptions:   yes
-
-Build I/O module:  yes
-Build tools:       no
-Build examples:    no
-Build unit tests:  no
-Build benchmarks:  no
-Build opencl:      no
-Build Python:      no
-
-CXX:               /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++
-CXXFLAGS:          -std=c++11 -Wextra -Wall -pedantic -ftemplate-depth=512 -ftemplate-backtrace-limit=0 -stdlib=libc++ -fPIC -O3 -DNDEBUG
+conan upload --all caf/version@user/channel
 ```
+where _version_ is the new version number, _user_ is the `conan.io` user 
+that your packages live under, and _channel_ is one of `testing`, `beta`,
+`development`, `stable`, etc.
+
+After the package is uploaded successfully you should commit and push 
+the changes to the two `conanfile.py` files to Github.
